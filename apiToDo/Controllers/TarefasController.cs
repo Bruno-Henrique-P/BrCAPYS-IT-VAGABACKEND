@@ -11,12 +11,10 @@ namespace apiToDo.Controllers
     [ApiController]
     [Route("[controller]")]
     public class TarefasController : ControllerBase
-    {
-        
-        // crio um obj Tarefa para utilizar em todos corpo da requisição
-       
-        //[Authorize]
+    {  
 
+        /// não consegui utilizar a autenticação
+        ///[Authorize]
         [HttpPost("lstTarefas")]
         public ActionResult lstTarefas()
         {
@@ -67,6 +65,17 @@ namespace apiToDo.Controllers
             try
             {
                 Tarefas tarefas = new Tarefas();
+                if (tarefas.getTarefa(ID_TAREFA) != null)
+                {
+                    tarefas.DeletarTarefa(ID_TAREFA);
+                    return Ok(tarefas.getTarefaAll());
+                }
+                /// explico erro no terminal 
+                else
+                {
+                    throw new Exception($"Tarefa com Id = {ID_TAREFA} não existe");
+                }
+
                 tarefas.DeletarTarefa(ID_TAREFA);
                 return Ok(200);
             }
@@ -84,12 +93,11 @@ namespace apiToDo.Controllers
                 Tarefas tarefas = new Tarefas();
                 if (tarefas.getTarefa(ID_TAREFA) == null)
                 {
-                    return StatusCode(400, new {msg = $"Tarefa com ID {ID_TAREFA} não encontrada." });
+                    tarefas.DeletarTarefa(ID_TAREFA);
+                    throw new Exception($"Tarefa com Id = {ID_TAREFA} não existe");
                 }
-               
-                return Ok(tarefas.getTarefa(ID_TAREFA));
-                    
-                }
+                return Ok(tarefas.getTarefa(ID_TAREFA));   
+            }
 
             catch (Exception ex)
             {
@@ -97,5 +105,27 @@ namespace apiToDo.Controllers
             }
         }
 
+        [HttpPost("AtualizarTarefa")]
+        public ActionResult AtualizarTarefa([FromBody] TarefaDTO Request)
+        {
+            try
+            {
+                Tarefas tarefas = new Tarefas();
+                ///if (tarefas.getTarefa(Request.ID_TAREFA) != null)
+                //{
+                
+
+                tarefas.AtualizarTarefa(Request);
+                return Ok(tarefas.getTarefa(Request.ID_TAREFA));
+                //}
+                throw new Exception($"Tarefa com Id = {Request.ID_TAREFA} não existe");
+                
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(400, new { msg = $"Ocorreu um erro em sua API {ex.Message}" });
+            }
+        }
     }
 }

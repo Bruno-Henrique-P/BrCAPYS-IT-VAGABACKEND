@@ -58,7 +58,8 @@ namespace apiToDo.Models
                 throw ex;
             }
         }
-        /// metodo para retornar um tarefa especifica da lista, similar ao metodo DeletarTarefa porém na ultima linha ao inves de deltar o elemento ele retorna o mesmo
+        /// metodo para retornar um tarefa especifica da lista, similar ao metodo DeletarTarefa porém mais eficiente pois só percorre a lista uma vez 
+        /// e na ultima linha ao inves de deltar o elemento ele retorna o mesmo
         public TarefaDTO getTarefa(int ID_TAREFA)
         {
             try
@@ -67,10 +68,9 @@ namespace apiToDo.Models
                 var Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == ID_TAREFA);
                 if (Tarefa == null)
                 {
-                    throw new Exception($"Tarefa com Id = {ID_TAREFA} já existe");
+                    return null;
                 }
-                TarefaDTO Tarefa2 = lstResponse.Where(x => x.ID_TAREFA == Tarefa.ID_TAREFA).FirstOrDefault();
-                return Tarefa2;
+                return Tarefa;
             }
             catch(Exception ex)
             { 
@@ -95,16 +95,62 @@ namespace apiToDo.Models
         {
             try
             {
+                /// uma list do tipo TarefaTDO está sendo criada o seu valor é igual ao getTarefaAll que retorna a lista de todos as tarefas
                 List<TarefaDTO> lstResponse = getTarefaAll();
+                /// a variavel tarefa é igual ao primeiro obj cujo o id for igual ao parametro que foi passado na requisição, no caso um numero int, o programa vai percorrer a lista 
+                /// lstResponse até encontrar o id que seja valido, caso não encontre retorna Null
                 var Tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == ID_TAREFA);
+                /// adicionei essa linha de codigo, porque quando era pssado um numero invalido gerava um erro que não consegui tratar, aqui quando o numero é invalido ele joga uma 
+                /// exceção dizendo que a tarefa não existe, fiz essa exceção no controler tambem para garantir uma boa funcionalidade
                 if (Tarefa == null)
                 {
                     throw new Exception($"Tarefa com Id = {ID_TAREFA} não existe");
                 }
+                /// o erro acontece aqui, porque o var tarefa quando é invalido o retorno é null e aqui o programa tenta acessar uma tarefa null, então ele joga um NullReferenceException
+                /// aqui o programa faz basicamente a mesma coisa da linha de acima onde ele percorre a lista lstReponse em busca de uma tarefa com o id correspondente, percorrendo a lista novamente
+                
                 TarefaDTO Tarefa2 = lstResponse.Where(x=> x.ID_TAREFA == Tarefa.ID_TAREFA).FirstOrDefault();
+                /// aqui o programa remove a tarefa que foi encontrada acima 
                 lstResponse.Remove(Tarefa2);
+
+                /// uma forma mais eficiente de escreve o codigo nesse metodo
+                /// var tarefa = lstResponse.FirstOrDefault(x => x.ID_TAREFA == ID_TAREFA);
+                /// return tarefa ?? throw new Exception($"Tarefa com ID {ID_TAREFA} não encontrada");
+                /// aqui ele percorre a lista apenas um vez e caso não encontre joga a exceção
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public TarefaDTO AtualizarTarefa(TarefaDTO Request)
+        {
+            /// atualizar lista pelo id, recebe o corpo 
+            try
+            {
+                /// verifica se a requisição existe
+                if (Request == null)
+                {
+                    throw new Exception($"Não foi passado nenhuma informação");
+                }
+                /// cria a tarefa baseado na primeiro obj com o id_tarefa igual o id da requisição
+                var tarefa = tarefas.FirstOrDefault(t => t.ID_TAREFA == Request.ID_TAREFA);
+                /// se encontra a tarefa edita a mesma de acordo com o corpo retorna a tarefa editada
+                if (tarefa != null)
+                {
+                    tarefa.DS_TAREFA = Request.DS_TAREFA;
+                    return tarefa;
+                }
+                /// se não joga uma exceção dizendo que não encontrou tarefa X
+                else
+                {
+                    throw new Exception ($"Tarefa com ID {Request.ID_TAREFA} não encontrada");
+                    
+                }
+
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
