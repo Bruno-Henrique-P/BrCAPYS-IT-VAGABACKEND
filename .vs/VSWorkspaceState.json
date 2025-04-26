@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\apiToDo",
+    "\\apiToDo\\Controllers",
+    "\\apiToDo\\DTO",
+    "\\apiToDo\\Models"
+  ],
+  "SelectedNode": "\\apiToDo\\Controllers\\TarefasController.cs",
+  "PreviewInSolutionExplorer": false
+}
